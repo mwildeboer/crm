@@ -1,0 +1,13 @@
+root_path = "."
+
+watch_target_dirs = ["api", "model", "storage", "views"]
+watch_exclude_dirs = [".git", "vendor", "bin"]
+watch_file_ext = [".go"]
+
+build_target_dir = "$GOPATH/bin"
+build_target_name = "crm"
+build_command = "go"
+build_options = ["build", "-v"]
+
+start_options = ["-v", "-p", "$APP_PORT"]
+restart_process = true
