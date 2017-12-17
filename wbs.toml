@@ -1,6 +1,6 @@
 root_path = "."
 
-watch_target_dirs = ["api", "model", "storage", "views"]
+watch_target_dirs = ["api", "model", "renderers", "storage"]
 watch_exclude_dirs = [".git", "vendor", "bin"]
 watch_file_ext = [".go"]
 

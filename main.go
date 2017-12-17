@@ -2,6 +2,8 @@ package main
 
 import (
 	"crm/api"
+	"crm/views"
+
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
@@ -10,12 +12,12 @@ import (
 )
 
 func main() {
-	r := chi.NewRouter()
-	r.Use(middleware.RequestID)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-	r.Use(middleware.URLFormat)
-	r.Use(render.SetContentType(render.ContentTypeJSON))
+	router := chi.NewRouter()
+	router.Use(middleware.RequestID)
+	router.Use(middleware.Logger)
+	router.Use(middleware.Recoverer)
+	router.Use(middleware.URLFormat)
+	router.Use(render.SetContentType(render.ContentTypeJSON))
 
 	cors := cors.New(cors.Options{
 		// AllowedOrigins: []string{"https://foo.com"},
@@ -27,19 +29,18 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           300,
 	})
-	r.Use(cors.Handler)
+	router.Use(cors.Handler)
 
-	r.Route("/v1", func(r chi.Router) {
-		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("."))
+	router.Route("/v1", func(router chi.Router) {
+		router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			render.Render(w, r, views.NewRootResponse(router))
 		})
 
-		r.Mount("/contacts", api.Contacts{}.Routes())
-		r.Mount("/segments", api.Segments{}.Routes())
-
-		r.Route("/segments/{segmentId}", func(r chi.Router) {
-			r.Mount("/contacts", api.Contacts{}.Routes())
+		router.Group(func(router chi.Router) {
+			router.Mount("/contacts", api.Contacts{}.Routes())
+			router.Mount("/segments", api.Segments{}.Routes())
+			router.Mount("/segments/{segmentId}/contacts", api.Contacts{}.Routes())
 		})
 	})
-	http.ListenAndServe(":3000", r)
+	http.ListenAndServe(":3000", router)
 }
